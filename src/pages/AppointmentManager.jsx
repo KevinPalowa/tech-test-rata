@@ -64,7 +64,7 @@ export const AppointmentManager = () => {
   })
 
   const appointments = appointmentData?.appointments ?? []
-  const patients = patientData?.patients ?? []
+  const patients = patientData?.patients?.patients ?? []
 
   const isEditing = Boolean(form.id)
   const isSubmitting = creating || updating
