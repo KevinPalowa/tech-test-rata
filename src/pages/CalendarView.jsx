@@ -64,6 +64,7 @@ export const CalendarView = () => {
 
   const { data, loading } = useQuery(APPOINTMENTS_QUERY, {
     variables: { start: start.toISOString(), end: end.toISOString() },
+    fetchPolicy: 'cache-and-network',
   })
   console.log(data)
 

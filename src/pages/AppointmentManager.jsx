@@ -56,13 +56,13 @@ export const AppointmentManager = () => {
   })
 
   const [createAppointment, { loading: creating }] = useMutation(CREATE_APPOINTMENT_MUTATION, {
-    refetchQueries: [APPOINTMENTS_QUERY],
+    refetchQueries: ['Appointments'],
   })
   const [updateAppointment, { loading: updating }] = useMutation(UPDATE_APPOINTMENT_MUTATION, {
-    refetchQueries: [APPOINTMENTS_QUERY],
+    refetchQueries: ['Appointments'],
   })
   const [deleteAppointment, { loading: deleting }] = useMutation(DELETE_APPOINTMENT_MUTATION, {
-    refetchQueries: [APPOINTMENTS_QUERY],
+    refetchQueries: ['Appointments'],
   })
 
   const appointments = appointmentData?.appointments ?? []
