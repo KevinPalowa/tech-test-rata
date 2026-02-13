@@ -12,18 +12,33 @@ const normalizePatient = (patient) => {
 
 const resolvers = {
   Query: {
-    patients: async (_, { search }) => {
+    patients: async (_, { search, limit = 6, offset = 0 }) => {
       let query = knex('patients');
+      let countQuery = knex('patients');
+
       if (search) {
         const normalized = `%${search.toLowerCase()}%`;
-        query = query.where(function () {
+        const filter = function () {
           this.where('name', 'like', normalized)
             .orWhere('phone', 'like', normalized)
             .orWhere('tags', 'like', normalized);
-        });
+        };
+        query = query.where(filter);
+        countQuery = countQuery.where(filter);
       }
-      const patients = await query.orderBy('id', 'desc');
-      return patients.map(normalizePatient);
+
+      const totalCountResult = await countQuery.count('id as count').first();
+      const totalCount = totalCountResult ? parseInt(totalCountResult.count) : 0;
+
+      const patients = await query
+        .orderBy('id', 'desc')
+        .limit(limit)
+        .offset(offset);
+
+      return {
+        patients: patients.map(normalizePatient),
+        totalCount,
+      };
     },
     patient: async (_, { id }) => {
       const patient = await knex('patients').where({ id }).first();

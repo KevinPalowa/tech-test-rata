@@ -49,8 +49,13 @@ const typeDefs = gql`
     reason: String!
   }
 
+  type PatientsResponse {
+    patients: [Patient!]!
+    totalCount: Int!
+  }
+
   type Query {
-    patients(search: String): [Patient!]!
+    patients(search: String, limit: Int, offset: Int): PatientsResponse!
     patient(id: ID!): Patient
     appointments(start: String, end: String): [Appointment!]!
     appointment(id: ID!): Appointment

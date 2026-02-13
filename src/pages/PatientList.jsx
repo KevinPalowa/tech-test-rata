@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom'
 import { PATIENTS_QUERY } from '../graphql/documents'
 import { useUIStore } from '../store/uiStore'
 import { useDebounce } from '../hooks/useDebounce'
+import { useState, useEffect } from 'react'
+import { Plus, Search, ChevronRight, ChevronLeft } from 'lucide-react'
+
+const PAGE_SIZE = 6
 
 const EmptyState = ({ title, description }) => (
   <div className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center">
@@ -11,16 +15,35 @@ const EmptyState = ({ title, description }) => (
   </div>
 )
 
-import { Plus, Search, ChevronRight } from 'lucide-react'
-
 export const PatientList = () => {
   const { patientSearch, setPatientSearch, role } = useUIStore()
+  const [currentPage, setCurrentPage] = useState(1)
   const debouncedSearch = useDebounce(patientSearch)
+
   const { data, loading, error } = useQuery(PATIENTS_QUERY, {
-    variables: { search: debouncedSearch || null },
+    variables: {
+      search: debouncedSearch || null,
+      limit: PAGE_SIZE,
+      offset: (currentPage - 1) * PAGE_SIZE,
+    },
   })
 
-  const patients = data?.patients ?? []
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [debouncedSearch])
+
+  const patients = data?.patients?.patients ?? []
+  const totalCount = data?.patients?.totalCount ?? 0
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1))
+  }
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+  }
 
   return (
     <section className="space-y-6">
@@ -28,7 +51,7 @@ export const PatientList = () => {
         <div className="min-w-0">
           <h1 className="text-2xl font-bold text-slate-900 truncate">Daftar Pasien</h1>
           <p className="text-sm text-slate-500">
-            Pantau pasien klinik dengan pencarian real-time bertenaga debounce.
+            Pantau pasien klinik dengan pencarian real-time bertenaga pagination.
           </p>
         </div>
         {role === 'admin' && (
@@ -121,6 +144,46 @@ export const PatientList = () => {
           </li>
         ))}
       </ul>
+
+      {totalPages > 1 && (
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-6 sm:flex-row">
+          <p className="text-sm font-medium text-slate-500">
+            Menampilkan <span className="font-bold text-slate-900">{(currentPage - 1) * PAGE_SIZE + 1}</span> sampai{' '}
+            <span className="font-bold text-slate-900">{Math.min(currentPage * PAGE_SIZE, totalCount)}</span> dari{' '}
+            <span className="font-bold text-slate-900">{totalCount}</span> pasien
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-30"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <div className="flex items-center gap-1">
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition ${currentPage === i + 1
+                    ? 'bg-brand-600 text-white shadow-lg shadow-brand-100'
+                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                    }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-30"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

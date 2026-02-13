@@ -1,15 +1,18 @@
 import { gql } from '@apollo/client'
 
 export const PATIENTS_QUERY = gql`
-  query Patients($search: String) {
-    patients(search: $search) {
-      id
-      name
-      dateOfBirth
-      gender
-      phone
-      tags
-      notes
+  query Patients($search: String, $limit: Int, $offset: Int) {
+    patients(search: $search, limit: $limit, offset: $offset) {
+      patients {
+        id
+        name
+        dateOfBirth
+        gender
+        phone
+        tags
+        notes
+      }
+      totalCount
     }
   }
 `
