@@ -92,6 +92,7 @@ const resolvers = {
     },
     saveWorkflow: async (_, { steps }) => {
       await knex('workflow_steps').del();
+      if (!steps || steps.length === 0) return [];
       const formattedSteps = steps.map((step, index) => ({
         id: step.id || `wf-${index + 1}`,
         name: step.name,

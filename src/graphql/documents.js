@@ -30,7 +30,6 @@ export const PATIENT_DETAIL_QUERY = gql`
         id
         date
         reason
-        status
       }
     }
   }

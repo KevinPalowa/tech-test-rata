@@ -33,15 +33,16 @@ export const WorkflowBuilder = () => {
     }),
   )
 
-  const { loading, refetch } = useQuery(WORKFLOW_QUERY, {
-    fetchPolicy: 'cache-and-network',
-    onCompleted: (data) => {
-      if (data?.workflow) {
-        setWorkflowSteps(data.workflow)
-        setHasChanges(false)
-      }
-    },
+  const { loading, refetch, data } = useQuery(WORKFLOW_QUERY, {
+    fetchPolicy: 'network-only',
   })
+
+  useEffect(() => {
+    if (data?.workflow) {
+      setWorkflowSteps(data.workflow)
+      setHasChanges(false)
+    }
+  }, [data, setWorkflowSteps])
 
   const [saveWorkflow, { loading: saving }] = useMutation(SAVE_WORKFLOW_MUTATION, {
     onCompleted: (result) => {
@@ -83,6 +84,10 @@ export const WorkflowBuilder = () => {
   }
 
   const handleSave = async () => {
+    if (workflowSteps.length === 0) {
+      setStatus({ type: 'error', message: 'Workflow tidak boleh kosong' })
+      return
+    }
     await saveWorkflow({
       variables: {
         steps: workflowSteps.map(({ id, name }) => ({ id, name })),
