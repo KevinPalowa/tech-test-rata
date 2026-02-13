@@ -8,6 +8,7 @@ import {
   UPDATE_APPOINTMENT_MUTATION,
   DELETE_APPOINTMENT_MUTATION,
 } from '../graphql/documents'
+import { Modal } from '../components/Modal'
 
 const defaultForm = {
   id: null,
@@ -43,6 +44,7 @@ export const AppointmentManager = () => {
   const [form, setForm] = useState(defaultForm)
   const [errors, setErrors] = useState({})
   const [message, setMessage] = useState(null)
+  const [deletingAppointment, setDeletingAppointment] = useState(null)
 
   const {
     data: appointmentData,
@@ -116,16 +118,18 @@ export const AppointmentManager = () => {
     setErrors({})
   }
 
-  const handleDelete = async (appointment) => {
-    const confirmed = window.confirm(
-      `Hapus janji ${appointment.patient.name} pada ${formatHumanDate(appointment.date)}?`,
-    )
-    if (!confirmed) return
-    await deleteAppointment({ variables: { id: appointment.id } })
+  const handleDelete = (appointment) => {
+    setDeletingAppointment(appointment)
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingAppointment) return
+    await deleteAppointment({ variables: { id: deletingAppointment.id } })
     setMessage('Janji dihapus')
-    if (form.id === appointment.id) {
+    if (form.id === deletingAppointment.id) {
       resetForm()
     }
+    setDeletingAppointment(null)
   }
 
   return (
@@ -277,6 +281,20 @@ export const AppointmentManager = () => {
           </ul>
         </div>
       </div>
+
+      <Modal
+        isOpen={Boolean(deletingAppointment)}
+        onClose={() => setDeletingAppointment(null)}
+        onConfirm={confirmDelete}
+        title="Hapus Janji Terjadwal?"
+        message={
+          deletingAppointment
+            ? `Apakah Anda yakin ingin menghapus janji temu untuk ${deletingAppointment.patient.name} pada ${formatHumanDate(deletingAppointment.date)}? Tindakan ini tidak dapat dibatalkan.`
+            : ''
+        }
+        confirmLabel="Hapus Janji"
+        cancelLabel="Kembali"
+      />
     </section>
   )
 }
