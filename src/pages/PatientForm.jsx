@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { PATIENT_DETAIL_QUERY, UPSERT_PATIENT_MUTATION } from '../graphql/documents'
+import { PATIENTS_QUERY, PATIENT_DETAIL_QUERY, UPSERT_PATIENT_MUTATION } from '../graphql/documents'
 import { useUIStore } from '../store/uiStore'
 
 const emptyForm = {
@@ -11,7 +11,6 @@ const emptyForm = {
   phone: '',
   address: '',
   allergies: [],
-  tags: [],
   notes: '',
 }
 
@@ -23,28 +22,31 @@ export const PatientForm = () => {
   const [formState, setFormState] = useState(emptyForm)
   const [errors, setErrors] = useState({})
 
-  const { loading } = useQuery(PATIENT_DETAIL_QUERY, {
+  const { loading, data } = useQuery(PATIENT_DETAIL_QUERY, {
     variables: { id },
     skip: !isEditing,
-    onCompleted: (data) => {
-      if (data?.patient) {
-        const patient = data.patient
-        setFormState({
-          name: patient.name,
-          dateOfBirth: patient.dateOfBirth,
-          gender: patient.gender,
-          phone: patient.phone,
-          address: patient.address,
-          allergies: patient.allergies || [],
-          tags: patient.tags || [],
-          notes: patient.notes ?? '',
-        })
-      }
-    },
   })
 
+  useEffect(() => {
+    if (isEditing && data?.patient) {
+      const patient = data.patient
+      setFormState({
+        name: patient.name,
+        dateOfBirth: patient.dateOfBirth,
+        gender: patient.gender,
+        phone: patient.phone,
+        address: patient.address,
+        allergies: patient.allergies || [],
+        notes: patient.notes ?? '',
+      })
+    }
+  }, [isEditing, data])
+
   const [savePatient, { loading: saving }] = useMutation(UPSERT_PATIENT_MUTATION, {
-    refetchQueries: ['Patients', 'Patient'],
+    refetchQueries: [
+      { query: PATIENTS_QUERY },
+      { query: PATIENT_DETAIL_QUERY, variables: { id } }
+    ],
   })
 
   const actionLabel = useMemo(() => (isEditing ? 'Simpan Perubahan' : 'Tambah Pasien'), [isEditing])
@@ -94,7 +96,6 @@ export const PatientForm = () => {
       phone: formState.phone.trim(),
       address: formState.address.trim(),
       allergies: formState.allergies,
-      tags: formState.tags,
       notes: formState.notes.trim(),
     }
 
@@ -109,7 +110,7 @@ export const PatientForm = () => {
   }
 
   return (
-    <section className="max-w-4xl mx-auto">
+    <section className="w-full">
       <div className="mb-8">
         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
           {isEditing ? 'Manajemen Pasien' : 'Registrasi Baru'}
@@ -192,23 +193,15 @@ export const PatientForm = () => {
               placeholder="Tambahkan catatan jika ada..."
             />
           </div>
-        </div>
-
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 border-t border-slate-50 pt-8">
-          <TagInput
-            label="Daftar Alergi"
-            tags={formState.allergies}
-            onChange={(newTags) => handleTagsChange('allergies', newTags)}
-            placeholder="Ketik lalu tekan enter/koma..."
-            color="red"
-          />
-          <TagInput
-            label="Label / Tags"
-            tags={formState.tags}
-            onChange={(newTags) => handleTagsChange('tags', newTags)}
-            placeholder="Ketik lalu tekan enter/koma..."
-            color="brand"
-          />
+          <div className="md:col-span-2 border-t border-slate-50">
+            <TagInput
+              label="Daftar Alergi"
+              tags={formState.allergies}
+              onChange={(newTags) => handleTagsChange('allergies', newTags)}
+              placeholder="Ketik lalu tekan enter/koma..."
+              color="red"
+            />
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-50">
@@ -305,7 +298,7 @@ const TagInput = ({ label, tags, onChange, placeholder, color = 'brand' }) => {
   )
 }
 
-const Field = ({ label, name, value, onChange, type = 'text', error, children, required }) => (
+const Field = ({ label, name, value, onChange, type = 'text', error, children, required, placeholder }) => (
   <label className="space-y-1 text-sm text-slate-700">
     <span className="font-medium">
       {label}
@@ -319,6 +312,7 @@ const Field = ({ label, name, value, onChange, type = 'text', error, children, r
         value={value}
         onChange={onChange}
         rows={3}
+        placeholder={placeholder}
         className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
       />
     ) : (
@@ -327,6 +321,7 @@ const Field = ({ label, name, value, onChange, type = 'text', error, children, r
         name={name}
         value={value}
         onChange={onChange}
+        placeholder={placeholder}
         className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
       />
     )}

@@ -49,7 +49,7 @@ export const PatientList = () => {
             type="search"
             value={patientSearch}
             onChange={(event) => setPatientSearch(event.target.value)}
-            placeholder="Cari pasien berdasarkan nama, telepon, atau tag..."
+            placeholder="Cari pasien berdasarkan nama, telepon..."
             className="w-full bg-transparent text-sm font-medium outline-none placeholder:text-slate-400"
           />
         </div>
