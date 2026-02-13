@@ -147,7 +147,7 @@ export const CalendarView = () => {
               <li key={appointment.id} className="rounded-xl border border-slate-100 p-4">
                 <p className="text-sm font-semibold text-slate-900">{appointment.patient.name}</p>
                 <p className="text-xs text-slate-500">
-                  {format(parseISO(appointment.date), 'HH:mm')} • {appointment.status}
+                  {format(parseISO(appointment.date), 'HH:mm')}
                 </p>
                 <p className="text-sm text-slate-600">{appointment.reason}</p>
               </li>
@@ -183,10 +183,6 @@ export const CalendarView = () => {
                         <div className="mt-2 pt-2 border-t border-brand-100/50 flex flex-wrap items-center gap-1.5">
                           <span className="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-100">
                             {format(parseISO(appointment.date), 'HH:mm')}
-                          </span>
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded capitalize ${appointment.status === 'scheduled' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
-                            }`}>
-                            {appointment.status}
                           </span>
                         </div>
                       </article>

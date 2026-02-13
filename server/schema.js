@@ -12,7 +12,6 @@ const typeDefs = gql`
     tags: [String!]!
     notes: String
     appointments: [Appointment!]!
-    visits: [Visit!]!
   }
 
   type Appointment {
@@ -20,18 +19,7 @@ const typeDefs = gql`
     patientId: ID!
     date: String!
     reason: String!
-    status: String!
     patient: Patient!
-  }
-
-  type Visit {
-    id: ID!
-    patientId: ID!
-    date: String!
-    doctor: String!
-    reason: String!
-    notes: String!
-    prescription: String
   }
 
   type WorkflowStep {
@@ -59,7 +47,6 @@ const typeDefs = gql`
     patientId: ID!
     date: String!
     reason: String!
-    status: String!
   }
 
   type Query {

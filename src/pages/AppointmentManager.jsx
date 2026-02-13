@@ -14,15 +14,7 @@ const defaultForm = {
   patientId: '',
   date: '',
   reason: '',
-  status: 'scheduled',
 }
-
-const statusOptions = [
-  { value: 'scheduled', label: 'Scheduled' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'cancelled', label: 'Cancelled' },
-]
 
 const formatHumanDate = (value) => {
   try {
@@ -100,7 +92,6 @@ export const AppointmentManager = () => {
         patientId: form.patientId,
         date: toISOStringValue(form.date),
         reason: form.reason.trim(),
-        status: form.status,
       },
     }
 
@@ -121,7 +112,6 @@ export const AppointmentManager = () => {
       patientId: appointment.patient.id,
       date: toInputDatetime(appointment.date),
       reason: appointment.reason,
-      status: appointment.status,
     })
     setErrors({})
   }
@@ -204,21 +194,6 @@ export const AppointmentManager = () => {
             {errors.reason && <p className="mt-1 text-[10px] font-bold text-red-600 uppercase tracking-tighter">{errors.reason}</p>}
           </div>
 
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Status Janji</label>
-            <select
-              value={form.status}
-              onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))}
-              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm font-semibold text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition"
-            >
-              {statusOptions.map((status) => (
-                <option key={status.value} value={status.value}>
-                  {status.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div className="flex flex-col gap-3 pt-3">
             <button
               type="submit"
@@ -274,9 +249,6 @@ export const AppointmentManager = () => {
                   <p className="mt-1.5 text-sm text-slate-600 leading-relaxed italic">"{appointment.reason}"</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4 md:border-0 md:pt-0">
-                  <span className="rounded-full bg-white border border-slate-100 px-3 py-1 text-[10px] font-bold text-slate-600 uppercase tracking-tight shadow-sm">
-                    {appointment.status}
-                  </span>
                   <div className="flex gap-2 ml-auto md:ml-0">
                     <button
                       type="button"
@@ -284,7 +256,6 @@ export const AppointmentManager = () => {
                       className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 hover:border-brand-200 hover:text-brand-600 transition shadow-sm"
                     >
                       <Pencil size={14} />
-                      Edit
                     </button>
                     <button
                       type="button"

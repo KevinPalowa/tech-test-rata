@@ -32,14 +32,6 @@ export const PATIENT_DETAIL_QUERY = gql`
         reason
         status
       }
-      visits {
-        id
-        date
-        doctor
-        reason
-        notes
-        prescription
-      }
     }
   }
 `
@@ -66,7 +58,6 @@ export const APPOINTMENTS_QUERY = gql`
       id
       date
       reason
-      status
       patient {
         id
         name
@@ -100,7 +91,6 @@ export const CREATE_APPOINTMENT_MUTATION = gql`
       id
       date
       reason
-      status
       patient {
         id
         name
@@ -116,7 +106,6 @@ export const UPDATE_APPOINTMENT_MUTATION = gql`
       id
       date
       reason
-      status
       patient {
         id
         name

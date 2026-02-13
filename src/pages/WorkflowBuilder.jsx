@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client/react'
 import { useEffect, useState, useRef } from 'react'
-import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, DragOverlay } from '@dnd-kit/core'
 import {
   SortableContext,
   arrayMove,
@@ -8,7 +8,6 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { motion, AnimatePresence } from 'framer-motion'
 import { SAVE_WORKFLOW_MUTATION, WORKFLOW_QUERY } from '../graphql/documents'
 import { useUIStore } from '../store/uiStore'
 
@@ -26,6 +25,7 @@ export const WorkflowBuilder = () => {
   const [newStep, setNewStep] = useState('')
   const [status, setStatus] = useState(null)
   const [hasChanges, setHasChanges] = useState(false)
+  const [activeId, setActiveId] = useState(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -90,8 +90,13 @@ export const WorkflowBuilder = () => {
     })
   }
 
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id)
+  }
+
   const handleDragEnd = (event) => {
     const { active, over } = event
+    setActiveId(null)
     if (!over || active.id === over.id) return
     const oldIndex = workflowSteps.findIndex((step) => step.id === active.id)
     const newIndex = workflowSteps.findIndex((step) => step.id === over.id)
@@ -127,21 +132,16 @@ export const WorkflowBuilder = () => {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <AnimatePresence>
-            {status && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className={`rounded-full px-5 py-2.5 text-xs font-bold shadow-sm border text-center ${status.type === 'success'
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                  : 'bg-red-50 text-red-700 border-red-100'
-                  }`}
-              >
-                {status.message}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {status && (
+            <div
+              className={`rounded-full px-5 py-2.5 text-xs font-bold shadow-sm border text-center ${status.type === 'success'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                : 'bg-red-50 text-red-700 border-red-100'
+                }`}
+            >
+              {status.message}
+            </div>
+          )}
           <button
             type="button"
             onClick={handleSave}
@@ -193,33 +193,56 @@ export const WorkflowBuilder = () => {
             </div>
           )}
 
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
             <SortableContext items={workflowSteps.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-              <motion.div layout className="space-y-3">
-                <AnimatePresence mode="popLayout">
-                  {workflowSteps.map((step, index) => (
-                    <WorkflowStepItem
-                      key={step.id}
-                      step={step}
-                      index={index}
-                      onRemove={() => removeStep(step.id)}
-                      onUpdateName={(newName) => updateStepName(step.id, newName)}
-                      onMove={(dir) => moveStep(index, dir)}
-                      isFirst={index === 0}
-                      isLast={index === workflowSteps.length - 1}
-                    />
-                  ))}
-                </AnimatePresence>
-              </motion.div>
+              <div className="space-y-3">
+                {workflowSteps.map((step, index) => (
+                  <WorkflowStepItem
+                    key={step.id}
+                    step={step}
+                    index={index}
+                    onRemove={() => removeStep(step.id)}
+                    onUpdateName={(newName) => updateStepName(step.id, newName)}
+                    onMove={(dir) => moveStep(index, dir)}
+                    isFirst={index === 0}
+                    isLast={index === workflowSteps.length - 1}
+                  />
+                ))}
+              </div>
             </SortableContext>
+            <DragOverlay dropAnimation={null}>
+              {activeId ? (
+                <div className="z-50 border-brand-200 bg-white shadow-xl ring-2 ring-brand-100 rounded-xl border p-3 flex items-center gap-3 opacity-90 scale-[1.02]">
+                  <div className="flex h-8 w-6 items-center justify-center text-slate-400">
+                    <svg width="10" height="16" viewBox="0 0 12 18" fill="currentColor">
+                      <circle cx="2" cy="2" r="1.5" />
+                      <circle cx="2" cy="9" r="1.5" />
+                      <circle cx="2" cy="16" r="1.5" />
+                      <circle cx="10" cy="2" r="1.5" />
+                      <circle cx="10" cy="9" r="1.5" />
+                      <circle cx="10" cy="16" r="1.5" />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Memindahkan...
+                    </span>
+                    <span className="truncate text-sm font-semibold text-slate-900">
+                      {workflowSteps.find((s) => s.id === activeId)?.name}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
+            </DragOverlay>
           </DndContext>
 
           {!loading && workflowSteps.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center py-12 text-center"
-            >
+            <div className="flex flex-col items-center justify-center py-12 text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2v20M2 12h20" />
@@ -229,7 +252,7 @@ export const WorkflowBuilder = () => {
               <p className="mt-2 max-w-xs text-sm text-slate-500">
                 Langkah operasional membantu tim Anda bekerja lebih terstruktur dan efisien.
               </p>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>
@@ -271,21 +294,16 @@ const WorkflowStepItem = ({ step, index, onRemove, onUpdateName, onMove, isFirst
   }
 
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 50 : 0,
+    transform: CSS.Translate.toString(transform),
+    transition: transition || 'transform 200ms cubic-bezier(0.2, 0, 0, 1)',
   }
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+    <div
       ref={setNodeRef}
       style={style}
-      className={`group relative flex items-center gap-3 rounded-xl border p-3 transition-all duration-200 ${isDragging
-        ? 'z-50 border-brand-200 bg-white shadow-lg ring-2 ring-brand-50'
+      className={`group relative flex items-center gap-3 rounded-xl border p-3 ${isDragging
+        ? 'opacity-30 border-slate-100 bg-slate-50 shadow-none ring-0'
         : 'border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm'
         }`}
     >
@@ -364,6 +382,6 @@ const WorkflowStepItem = ({ step, index, onRemove, onUpdateName, onMove, isFirst
           </svg>
         </button>
       </div>
-    </motion.div>
+    </div>
   )
 }

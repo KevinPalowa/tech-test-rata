@@ -16,7 +16,7 @@ const resolvers = {
       let query = knex('patients');
       if (search) {
         const normalized = `%${search.toLowerCase()}%`;
-        query = query.where(function() {
+        query = query.where(function () {
           this.where('name', 'like', normalized)
             .orWhere('phone', 'like', normalized)
             .orWhere('tags', 'like', normalized);
@@ -103,9 +103,6 @@ const resolvers = {
   Patient: {
     appointments: async (patient) => {
       return await knex('appointments').where({ patientId: patient.id });
-    },
-    visits: async (patient) => {
-      return await knex('visits').where({ patientId: patient.id }).orderBy('date', 'desc');
     },
   },
   Appointment: {
