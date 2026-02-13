@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PATIENTS_QUERY, PATIENT_DETAIL_QUERY, UPSERT_PATIENT_MUTATION } from '../graphql/documents'
 import { useUIStore } from '../store/uiStore'
@@ -27,20 +27,20 @@ export const PatientForm = () => {
     skip: !isEditing,
   })
 
-  useEffect(() => {
-    if (isEditing && data?.patient) {
-      const patient = data.patient
-      setFormState({
-        name: patient.name,
-        dateOfBirth: patient.dateOfBirth,
-        gender: patient.gender,
-        phone: patient.phone,
-        address: patient.address,
-        allergies: patient.allergies || [],
-        notes: patient.notes ?? '',
-      })
-    }
-  }, [isEditing, data])
+  const [prevPatient, setPrevPatient] = useState(null)
+  if (isEditing && data?.patient && data.patient !== prevPatient) {
+    setPrevPatient(data.patient)
+    const patient = data.patient
+    setFormState({
+      name: patient.name,
+      dateOfBirth: patient.dateOfBirth,
+      gender: patient.gender,
+      phone: patient.phone,
+      address: patient.address,
+      allergies: patient.allergies || [],
+      notes: patient.notes ?? '',
+    })
+  }
 
   const [savePatient, { loading: saving }] = useMutation(UPSERT_PATIENT_MUTATION, {
     refetchQueries: [

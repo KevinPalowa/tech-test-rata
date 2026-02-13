@@ -37,12 +37,14 @@ export const WorkflowBuilder = () => {
     fetchPolicy: 'network-only',
   })
 
-  useEffect(() => {
+  const [prevData, setPrevData] = useState(null)
+  if (data !== prevData) {
+    setPrevData(data)
     if (data?.workflow) {
       setWorkflowSteps(data.workflow)
       setHasChanges(false)
     }
-  }, [data, setWorkflowSteps])
+  }
 
   const [saveWorkflow, { loading: saving }] = useMutation(SAVE_WORKFLOW_MUTATION, {
     onCompleted: (result) => {

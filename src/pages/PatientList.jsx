@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { PATIENTS_QUERY } from '../graphql/documents'
 import { useUIStore } from '../store/uiStore'
 import { useDebounce } from '../hooks/useDebounce'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Plus, Search, ChevronRight, ChevronLeft } from 'lucide-react'
 
 const PAGE_SIZE = 6
@@ -29,9 +29,11 @@ export const PatientList = () => {
   })
 
   // Reset to page 1 when search changes
-  useEffect(() => {
+  const [prevSearch, setPrevSearch] = useState(debouncedSearch)
+  if (debouncedSearch !== prevSearch) {
+    setPrevSearch(debouncedSearch)
     setCurrentPage(1)
-  }, [debouncedSearch])
+  }
 
   const patients = data?.patients?.patients ?? []
   const totalCount = data?.patients?.totalCount ?? 0
