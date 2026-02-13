@@ -52,7 +52,7 @@ export const AppointmentManager = () => {
   } = useQuery(APPOINTMENTS_QUERY)
 
   const { data: patientData, loading: patientsLoading } = useQuery(PATIENTS_QUERY, {
-    variables: { search: null },
+    variables: { search: null, limit: 100 },
   })
 
   const [createAppointment, { loading: creating }] = useMutation(CREATE_APPOINTMENT_MUTATION, {
