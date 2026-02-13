@@ -4,15 +4,16 @@ A web-based clinic management system built with React, Apollo Client, and a stan
 
 ## Features
 
+- **Fully Responsive UI**: Optimized for Mobile, Tablet, and Desktop with a premium aesthetic.
 - **Patient Management**: Add, view, and edit patient profiles.
 - **Appointment Management**: Schedule, update, and delete patient appointments.
-- **Calendar View**: Visual representation of appointments in Daily, Weekly, and Monthly modes.
+- **Calendar View**: Visual representation of appointments in Daily, Weekly (with horizontal scroll), and Monthly modes.
 - **Real-time Updates**: Automatically refetches data after mutations to keep the UI in sync.
 - **Persistent Storage**: Data is stored in a local SQLite database.
 
 ## Architecture
 
-- **Frontend**: Vite + React + Apollo Client + Vanilla CSS
+- **Frontend**: Vite + React + Apollo Client + Tailwind CSS
 - **Backend**: Node.js + Apollo Server + Knex.js
 - **Database**: SQLite3
 
