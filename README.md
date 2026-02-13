@@ -4,12 +4,12 @@ A web-based clinic management system built with React, Apollo Client, and a stan
 
 ## Features
 
-- **Fully Responsive UI**: Optimized for Mobile, Tablet, and Desktop with a premium aesthetic.
-- **Patient Management**: Add, view, and edit patient profiles.
-- **Appointment Management**: Schedule, update, and delete patient appointments.
+- **Fully Responsive UI**: Optimized for Mobile, Tablet, and Desktop with a premium aesthetic and glassmorphism elements.
+- **Patient Management**: Complete CRUD with pagination support (6 patients per page) and real-time search.
+- **Appointment Management**: Schedule and manage appointments with a custom-built, animated confirmation modal for deletions.
 - **Calendar View**: Visual representation of appointments in Daily, Weekly (with horizontal scroll), and Monthly modes.
-- **Real-time Updates**: Automatically refetches data after mutations to keep the UI in sync.
-- **Persistent Storage**: Data is stored in a local SQLite database.
+- **Smart Data Sync**: Intelligent caching and auto-refetching (cache-and-network) ensuring all views stay in sync.
+- **Persistent Storage**: Data is stored and managed via a local SQLite database using Knex.js.
 
 ## Architecture
 
@@ -66,9 +66,8 @@ npm run dev
 
 The SQLite database (`server/database/dev.sqlite3`) contains the following tables:
 
-- `patients`: Core patient data (name, DOB, gender, phone, address, etc.).
+- `patients`: Core patient data (name, DOB, gender, phone, address, allergies, notes).
 - `appointments`: Scheduled visits linked to patients.
-- `visits`: Historical medical visit records for patients.
 - `workflow_steps`: Configuration for the clinic's workflow phases.
 
 ## Development
