@@ -31,16 +31,15 @@ export const WorkflowBuilder = () => {
     }),
   )
 
-  const { data, loading, refetch } = useQuery(WORKFLOW_QUERY, {
+  const { loading, refetch } = useQuery(WORKFLOW_QUERY, {
     fetchPolicy: 'cache-and-network',
+    onCompleted: (data) => {
+      if (data?.workflow) {
+        setWorkflowSteps(data.workflow)
+        setHasChanges(false)
+      }
+    },
   })
-
-  useEffect(() => {
-    if (data?.workflow) {
-      setWorkflowSteps(data.workflow)
-      setHasChanges(false)
-    }
-  }, [data, setWorkflowSteps])
 
   const [saveWorkflow, { loading: saving }] = useMutation(SAVE_WORKFLOW_MUTATION, {
     onCompleted: (result) => {

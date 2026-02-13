@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PATIENT_DETAIL_QUERY, UPSERT_PATIENT_MUTATION } from '../graphql/documents'
 import { useUIStore } from '../store/uiStore'
@@ -23,30 +23,29 @@ export const PatientForm = () => {
   const [formState, setFormState] = useState(emptyForm)
   const [errors, setErrors] = useState({})
 
-  const { data, loading } = useQuery(PATIENT_DETAIL_QUERY, {
+  const { loading } = useQuery(PATIENT_DETAIL_QUERY, {
     variables: { id },
     skip: !isEditing,
+    onCompleted: (data) => {
+      if (data?.patient) {
+        const patient = data.patient
+        setFormState({
+          name: patient.name,
+          dateOfBirth: patient.dateOfBirth,
+          gender: patient.gender,
+          phone: patient.phone,
+          address: patient.address,
+          allergies: patient.allergies || [],
+          tags: patient.tags || [],
+          notes: patient.notes ?? '',
+        })
+      }
+    },
   })
 
   const [savePatient, { loading: saving }] = useMutation(UPSERT_PATIENT_MUTATION, {
     refetchQueries: ['Patients', 'Patient'],
   })
-
-  useEffect(() => {
-    if (data?.patient) {
-      const patient = data.patient
-      setFormState({
-        name: patient.name,
-        dateOfBirth: patient.dateOfBirth,
-        gender: patient.gender,
-        phone: patient.phone,
-        address: patient.address,
-        allergies: patient.allergies || [],
-        tags: patient.tags || [],
-        notes: patient.notes ?? '',
-      })
-    }
-  }, [data])
 
   const actionLabel = useMemo(() => (isEditing ? 'Simpan Perubahan' : 'Tambah Pasien'), [isEditing])
 

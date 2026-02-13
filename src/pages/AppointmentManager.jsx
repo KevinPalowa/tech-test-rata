@@ -53,7 +53,6 @@ export const AppointmentManager = () => {
   const {
     data: appointmentData,
     loading: appointmentsLoading,
-    refetch: refetchAppointments,
   } = useQuery(APPOINTMENTS_QUERY)
 
   const { data: patientData, loading: patientsLoading } = useQuery(PATIENTS_QUERY, {

@@ -65,7 +65,7 @@ export const CalendarView = () => {
   })
   console.log(data)
 
-  const appointments = data?.appointments ?? []
+  const appointments = useMemo(() => data?.appointments ?? [], [data])
 
   const weeklyDays = useMemo(() => {
     if (mode !== 'weekly') return []
@@ -203,9 +203,8 @@ export const CalendarView = () => {
                   return (
                     <div
                       key={day.toISOString()}
-                      className={`p-3 transition ${
-                        hasAppointments ? 'bg-brand-50/80 ring-1 ring-brand-200' : ''
-                      }`}
+                      className={`p-3 transition ${hasAppointments ? 'bg-brand-50/80 ring-1 ring-brand-200' : ''
+                        }`}
                     >
                       <div className="flex items-center justify-between text-xs font-semibold">
                         <span className={inCurrentMonth ? 'text-slate-600' : 'text-slate-300'}>
