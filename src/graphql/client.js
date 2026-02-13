@@ -1,8 +1,10 @@
-import { ApolloClient, InMemoryCache } from '@apollo/client'
-import { SchemaLink } from '@apollo/client/link/schema'
-import { schema } from './schema'
+import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client'
+
+const httpLink = createHttpLink({
+  uri: 'http://localhost:4000',
+})
 
 export const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
-  link: new SchemaLink({ schema }),
+  link: httpLink,
 })

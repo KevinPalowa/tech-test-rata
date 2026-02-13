@@ -60,9 +60,15 @@ export const AppointmentManager = () => {
     variables: { search: null },
   })
 
-  const [createAppointment, { loading: creating }] = useMutation(CREATE_APPOINTMENT_MUTATION)
-  const [updateAppointment, { loading: updating }] = useMutation(UPDATE_APPOINTMENT_MUTATION)
-  const [deleteAppointment, { loading: deleting }] = useMutation(DELETE_APPOINTMENT_MUTATION)
+  const [createAppointment, { loading: creating }] = useMutation(CREATE_APPOINTMENT_MUTATION, {
+    refetchQueries: [APPOINTMENTS_QUERY],
+  })
+  const [updateAppointment, { loading: updating }] = useMutation(UPDATE_APPOINTMENT_MUTATION, {
+    refetchQueries: [APPOINTMENTS_QUERY],
+  })
+  const [deleteAppointment, { loading: deleting }] = useMutation(DELETE_APPOINTMENT_MUTATION, {
+    refetchQueries: [APPOINTMENTS_QUERY],
+  })
 
   const appointments = appointmentData?.appointments ?? []
   const patients = patientData?.patients ?? []
@@ -106,7 +112,6 @@ export const AppointmentManager = () => {
     }
 
     resetForm()
-    refetchAppointments()
   }
 
   const handleEdit = (appointment) => {
@@ -130,7 +135,6 @@ export const AppointmentManager = () => {
     if (form.id === appointment.id) {
       resetForm()
     }
-    refetchAppointments()
   }
 
   return (

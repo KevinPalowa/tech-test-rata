@@ -1,16 +1,80 @@
-# React + Vite
+# Mini Clinic Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web-based clinic management system built with React, Apollo Client, and a standalone Node.js GraphQL server backed by SQLite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Patient Management**: Add, view, and edit patient profiles.
+- **Appointment Management**: Schedule, update, and delete patient appointments.
+- **Calendar View**: Visual representation of appointments in Daily, Weekly, and Monthly modes.
+- **Real-time Updates**: Automatically refetches data after mutations to keep the UI in sync.
+- **Persistent Storage**: Data is stored in a local SQLite database.
 
-## React Compiler
+## Architecture
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: Vite + React + Apollo Client + Vanilla CSS
+- **Backend**: Node.js + Apollo Server + Knex.js
+- **Database**: SQLite3
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v16+)
+- npm
+
+### 1. Set Up the Backend
+
+1. Navigate to the `server` directory:
+   ```bash
+   cd server
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. The migrations and seeds are already set up, but you can reset the database if needed:
+   ```bash
+   npx knex migrate:latest
+   npx knex seed:run
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+   The backend will be running at `http://localhost:4000/`.
+
+### 2. Set Up the Frontend
+
+1. Go back to the root directory:
+   ```bash
+   cd ..
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+   The application will be available at `http://localhost:5173/`.
+
+---
+
+## Database Schema
+
+The SQLite database (`server/database/dev.sqlite3`) contains the following tables:
+
+- `patients`: Core patient data (name, DOB, gender, phone, address, etc.).
+- `appointments`: Scheduled visits linked to patients.
+- `visits`: Historical medical visit records for patients.
+- `workflow_steps`: Configuration for the clinic's workflow phases.
+
+## Development
+
+- **Server Logic**: Resolvers and schema are located in `server/resolvers.js` and `server/schema.js`.
+- **Frontend Logic**: GraphQL queries and mutations are in `src/graphql/documents.js`.
+- **Apollo Setup**: Configured in `src/graphql/client.js`.

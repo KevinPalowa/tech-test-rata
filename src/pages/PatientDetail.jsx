@@ -61,7 +61,7 @@ export const PatientDetail = () => {
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-wide text-slate-400">Pasien #{patient.id}</p>
+          <p className="text-sm uppercase tracking-wide text-slate-400">Detail Pasien</p>
           <h1 className="text-3xl font-semibold text-slate-900">{patient.name}</h1>
           <p className="text-sm text-slate-500">{patient.notes}</p>
         </div>
@@ -154,7 +154,6 @@ export const PatientDetail = () => {
                     {formatDate(appointment.date, true)} • {appointment.status}
                   </p>
                 </div>
-                <span className="text-xs font-semibold text-brand-600">#{appointment.id}</span>
               </li>
             ))}
             {appointments.length === 0 && (

@@ -10,16 +10,10 @@ const emptyForm = {
   gender: 'Female',
   phone: '',
   address: '',
-  allergies: '',
-  tags: '',
+  allergies: [],
+  tags: [],
   notes: '',
 }
-
-const parseList = (value) =>
-  value
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean)
 
 export const PatientForm = () => {
   const { id } = useParams()
@@ -34,7 +28,9 @@ export const PatientForm = () => {
     skip: !isEditing,
   })
 
-  const [savePatient, { loading: saving }] = useMutation(UPSERT_PATIENT_MUTATION)
+  const [savePatient, { loading: saving }] = useMutation(UPSERT_PATIENT_MUTATION, {
+    refetchQueries: ['Patients', 'Patient'],
+  })
 
   useEffect(() => {
     if (data?.patient) {
@@ -45,8 +41,8 @@ export const PatientForm = () => {
         gender: patient.gender,
         phone: patient.phone,
         address: patient.address,
-        allergies: patient.allergies.join(', '),
-        tags: patient.tags.join(', '),
+        allergies: patient.allergies || [],
+        tags: patient.tags || [],
         notes: patient.notes ?? '',
       })
     }
@@ -67,11 +63,22 @@ export const PatientForm = () => {
     setFormState((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleTagsChange = (name, newTags) => {
+    setFormState((prev) => ({ ...prev, [name]: newTags }))
+  }
+
   const validate = () => {
     const nextErrors = {}
     if (!formState.name.trim()) nextErrors.name = 'Nama wajib diisi'
     if (!formState.dateOfBirth) nextErrors.dateOfBirth = 'Tanggal lahir wajib diisi'
-    if (!formState.phone.trim()) nextErrors.phone = 'Nomor telepon wajib diisi'
+
+    const phone = formState.phone.trim()
+    if (!phone) {
+      nextErrors.phone = 'Nomor telepon wajib diisi'
+    } else if (!/^(\+62|0)8[1-9][0-9]{7,10}$/.test(phone)) {
+      nextErrors.phone = 'Format nomor telepon tidak valid (contoh: 08123456789)'
+    }
+
     if (!formState.address.trim()) nextErrors.address = 'Alamat wajib diisi'
     setErrors(nextErrors)
     return Object.keys(nextErrors).length === 0
@@ -87,8 +94,8 @@ export const PatientForm = () => {
       gender: formState.gender,
       phone: formState.phone.trim(),
       address: formState.address.trim(),
-      allergies: parseList(formState.allergies),
-      tags: parseList(formState.tags),
+      allergies: formState.allergies,
+      tags: formState.tags,
       notes: formState.notes.trim(),
     }
 
@@ -112,7 +119,7 @@ export const PatientForm = () => {
           {isEditing ? formState.name : 'Data Pasien Baru'}
         </h1>
         <p className="text-sm text-slate-500">
-          Lengkapi data dasar pasien. Field dengan tanda * wajib diisi.
+          Lengkapi data dasar pasien. Field bertanda <span className="text-red-500 font-bold">*</span> wajib diisi.
         </p>
       </div>
 
@@ -128,16 +135,18 @@ export const PatientForm = () => {
       >
         <div className="grid gap-6 md:grid-cols-2">
           <Field
-            label="Nama Lengkap*"
+            label="Nama Lengkap"
             name="name"
+            required
             value={formState.name}
             onChange={handleChange}
             error={errors.name}
           />
           <Field
-            label="Tanggal Lahir*"
+            label="Tanggal Lahir"
             name="dateOfBirth"
             type="date"
+            required
             value={formState.dateOfBirth}
             onChange={handleChange}
             error={errors.dateOfBirth}
@@ -154,15 +163,17 @@ export const PatientForm = () => {
             </select>
           </Field>
           <Field
-            label="Nomor Telepon*"
+            label="Nomor Telepon"
             name="phone"
+            required
             value={formState.phone}
             onChange={handleChange}
             error={errors.phone}
           />
           <Field
-            label="Alamat*"
+            label="Alamat"
             name="address"
+            required
             value={formState.address}
             onChange={handleChange}
             error={errors.address}
@@ -177,17 +188,19 @@ export const PatientForm = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <Field
-            label="Alergi (pisahkan dengan koma)"
-            name="allergies"
-            value={formState.allergies}
-            onChange={handleChange}
+          <TagInput
+            label="Alergi"
+            tags={formState.allergies}
+            onChange={(newTags) => handleTagsChange('allergies', newTags)}
+            placeholder="Type and press comma..."
+            color="red"
           />
-          <Field
-            label="Tags (pisahkan dengan koma)"
-            name="tags"
-            value={formState.tags}
-            onChange={handleChange}
+          <TagInput
+            label="Tags"
+            tags={formState.tags}
+            onChange={(newTags) => handleTagsChange('tags', newTags)}
+            placeholder="Type and press comma..."
+            color="brand"
           />
         </div>
 
@@ -212,9 +225,80 @@ export const PatientForm = () => {
   )
 }
 
-const Field = ({ label, name, value, onChange, type = 'text', error, children }) => (
+const TagInput = ({ label, tags, onChange, placeholder, color = 'brand' }) => {
+  const [inputValue, setInputValue] = useState('')
+
+  const handleKeyDown = (event) => {
+    if (event.key === ',') {
+      event.preventDefault()
+      addTag()
+    } else if (event.key === 'Enter') {
+      event.preventDefault()
+      addTag()
+    } else if (event.key === 'Backspace' && !inputValue && tags.length > 0) {
+      removeTag(tags.length - 1)
+    }
+  }
+
+  const addTag = () => {
+    const trimmedValue = inputValue.trim()
+    if (trimmedValue && !tags.includes(trimmedValue)) {
+      onChange([...tags, trimmedValue])
+    }
+    setInputValue('')
+  }
+
+  const removeTag = (indexToRemove) => {
+    onChange(tags.filter((_, index) => index !== indexToRemove))
+  }
+
+  const colorClasses = {
+    brand: 'bg-brand-50 text-brand-700 border-brand-100',
+    red: 'bg-red-50 text-red-700 border-red-100',
+  }
+
+  const chipColor = colorClasses[color] || colorClasses.brand
+
+  return (
+    <div className="space-y-1">
+      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <div className="flex min-h-[42px] flex-wrap gap-2 rounded-xl border border-slate-200 p-2 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100">
+        {tags.map((tag, index) => (
+          <span
+            key={index}
+            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${chipColor}`}
+          >
+            {tag}
+            <button
+              type="button"
+              onClick={() => removeTag(index)}
+              className="hover:text-slate-900"
+            >
+              ×
+            </button>
+          </span>
+        ))}
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onBlur={addTag}
+          placeholder={tags.length === 0 ? placeholder : ''}
+          className="flex-1 min-w-[120px] border-none bg-transparent p-0 text-sm outline-none placeholder:text-slate-400"
+        />
+      </div>
+      <p className="text-[10px] text-slate-400">Type comma (,) or Enter to add</p>
+    </div>
+  )
+}
+
+const Field = ({ label, name, value, onChange, type = 'text', error, children, required }) => (
   <label className="space-y-1 text-sm text-slate-700">
-    <span className="font-medium">{label}</span>
+    <span className="font-medium">
+      {label}
+      {required && <span className="ml-1 text-red-500">*</span>}
+    </span>
     {children ? (
       children
     ) : type === 'textarea' ? (

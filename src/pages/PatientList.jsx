@@ -107,8 +107,7 @@ export const PatientList = () => {
 
             <p className="mt-3 text-sm text-slate-600">{patient.notes}</p>
 
-            <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
-              <span>ID: {patient.id}</span>
+            <div className="mt-4 flex items-center justify-end text-sm text-slate-500">
               <Link to={`/patients/${patient.id}`} className="font-semibold text-brand-600">
                 Detail →
               </Link>
