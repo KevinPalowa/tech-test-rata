@@ -26,42 +26,39 @@ A web-based clinic management system built with React, Apollo Client, and a stan
 - [Node.js](https://nodejs.org/) (v16+)
 - npm
 
-### 1. Set Up the Backend
+### 1. Installation
 
-1. Navigate to the `server` directory:
-   ```bash
-   cd server
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. The migrations and seeds are already set up, but you can reset the database if needed:
-   ```bash
-   npx knex migrate:latest
-   npx knex seed:run
-   ```
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   The backend will be running at `http://localhost:4000/`.
+Install dependencies for both the root project and the backend server:
 
-### 2. Set Up the Frontend
+```bash
+# Install root (and frontend) dependencies
+npm install
 
-1. Go back to the root directory:
-   ```bash
-   cd ..
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-   The application will be available at `http://localhost:5173/`.
+# Install backend dependencies
+cd server && npm install
+cd ..
+```
+
+### 2. Database Initialization (Optional)
+
+The database is pre-seeded, but you can reset it anytime:
+
+```bash
+cd server
+npm run db:reset
+cd ..
+```
+
+### 3. Start Development Environment
+
+Run both the GraphQL server and the Vite frontend concurrently with a single command:
+
+```bash
+npm run dev
+```
+
+- **Frontend**: `http://localhost:5173/`
+- **Backend (GraphQL)**: `http://localhost:4000/`
 
 ---
 
