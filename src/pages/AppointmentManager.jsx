@@ -45,6 +45,8 @@ const toISOStringValue = (value) => {
   return new Date(value).toISOString()
 }
 
+import { CheckCircle2, Pencil, Trash2 } from 'lucide-react'
+
 export const AppointmentManager = () => {
   const [form, setForm] = useState(defaultForm)
   const [errors, setErrors] = useState({})
@@ -138,34 +140,36 @@ export const AppointmentManager = () => {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-sm uppercase text-slate-400">Appointment Manager</p>
-          <h1 className="text-2xl font-semibold text-slate-900">Kelola Janji Pasien</h1>
-          <p className="text-sm text-slate-500">
-            Tambah, ubah, atau hapus janji dan kalender akan otomatis mengikuti data terbaru.
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Appointment Manager</p>
+          <h1 className="text-2xl font-bold text-slate-900 mt-1">Kelola Janji Pasien</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Tambah, ubah, atau hapus janji temu klinis secara real-time.
           </p>
         </div>
       </div>
 
       {message && (
-        <div className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700 shadow-sm animate-in fade-in slide-in-from-top-2">
+          <CheckCircle2 size={18} />
           {message}
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm lg:col-span-1"
+          className="space-y-5 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm lg:col-span-1 h-fit"
         >
+          <h2 className="text-lg font-bold text-slate-900 border-b border-slate-50 pb-3">{isEditing ? 'Edit Janji' : 'Janji Baru'}</h2>
           <div>
-            <label className="text-sm font-medium text-slate-700">Pasien</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pasien Terdaftar</label>
             <select
               name="patientId"
               value={form.patientId}
               onChange={(event) => setForm((prev) => ({ ...prev, patientId: event.target.value }))}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm font-semibold text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition"
             >
               <option value="">Pilih pasien...</option>
               {patients.map((patient) => (
@@ -174,38 +178,38 @@ export const AppointmentManager = () => {
                 </option>
               ))}
             </select>
-            {errors.patientId && <p className="text-xs text-red-600">{errors.patientId}</p>}
+            {errors.patientId && <p className="mt-1 text-[10px] font-bold text-red-600 uppercase tracking-tighter">{errors.patientId}</p>}
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Tanggal & Waktu</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tanggal & Waktu</label>
             <input
               type="datetime-local"
               value={form.date}
               onChange={(event) => setForm((prev) => ({ ...prev, date: event.target.value }))}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm font-semibold text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition"
             />
-            {errors.date && <p className="text-xs text-red-600">{errors.date}</p>}
+            {errors.date && <p className="mt-1 text-[10px] font-bold text-red-600 uppercase tracking-tighter">{errors.date}</p>}
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Alasan</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Alasan Kunjungan</label>
             <input
               type="text"
               value={form.reason}
               onChange={(event) => setForm((prev) => ({ ...prev, reason: event.target.value }))}
-              placeholder="Contoh: Kontrol kehamilan"
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              placeholder="Contoh: Kontrol Rutin"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm font-semibold text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition"
             />
-            {errors.reason && <p className="text-xs text-red-600">{errors.reason}</p>}
+            {errors.reason && <p className="mt-1 text-[10px] font-bold text-red-600 uppercase tracking-tighter">{errors.reason}</p>}
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700">Status</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Status Janji</label>
             <select
               value={form.status}
               onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm font-semibold text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition"
             >
               {statusOptions.map((status) => (
                 <option key={status.value} value={status.value}>
@@ -215,74 +219,89 @@ export const AppointmentManager = () => {
             </select>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-3 pt-3">
             <button
               type="submit"
-              className="inline-flex items-center rounded-full bg-brand-600 px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-full bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-100 transition hover:bg-brand-500 disabled:opacity-50"
               disabled={isSubmitting || patientsLoading || appointmentsLoading}
             >
-              {isSubmitting ? 'Menyimpan...' : isEditing ? 'Simpan Perubahan' : 'Buat Janji'}
+              {isSubmitting ? 'Processing...' : isEditing ? 'Simpan Perubahan' : 'Buat Janji'}
             </button>
             {isEditing && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="inline-flex items-center rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-600"
+                className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition"
               >
-                Batal
+                Batal Edit
               </button>
             )}
           </div>
         </form>
 
-        <div className="space-y-3 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm lg:col-span-2">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Daftar Janji ({appointments.length})
+        <div className="space-y-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm lg:col-span-2">
+          <header className="flex items-center justify-between border-b border-slate-50 pb-4">
+            <h2 className="text-lg font-bold text-slate-900">
+              Daftar Janji Terjadwal
             </h2>
-            {(appointmentsLoading || deleting) && (
-              <span className="text-xs text-slate-500">Memuat data...</span>
-            )}
-          </div>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold text-slate-600">
+                {appointments.length} TOTAL
+              </span>
+              {(appointmentsLoading || deleting) && (
+                <div className="h-3 w-3 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
+              )}
+            </div>
+          </header>
 
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {appointments.map((appointment) => (
               <li
                 key={appointment.id}
-                className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="group flex flex-col gap-4 rounded-2xl border border-slate-50 bg-slate-50/30 p-5 transition hover:border-brand-100 hover:bg-brand-50/20 md:flex-row md:items-center md:justify-between"
               >
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {appointment.patient.name} • {appointment.patient.phone}
-                  </p>
-                  <p className="text-xs uppercase text-slate-400">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-slate-900 truncate">
+                      {appointment.patient.name}
+                    </p>
+                    <span className="text-[10px] font-bold text-slate-400">•</span>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase">{appointment.patient.phone}</p>
+                  </div>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-brand-600">
                     {formatHumanDate(appointment.date)}
                   </p>
-                  <p className="text-sm text-slate-600">{appointment.reason}</p>
+                  <p className="mt-1.5 text-sm text-slate-600 leading-relaxed italic">"{appointment.reason}"</p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="rounded-full bg-brand-50 px-3 py-1 font-semibold text-brand-700">
+                <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4 md:border-0 md:pt-0">
+                  <span className="rounded-full bg-white border border-slate-100 px-3 py-1 text-[10px] font-bold text-slate-600 uppercase tracking-tight shadow-sm">
                     {appointment.status}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => handleEdit(appointment)}
-                    className="rounded-full border border-slate-200 px-3 py-1 font-semibold text-slate-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(appointment)}
-                    className="rounded-full border border-red-100 px-3 py-1 font-semibold text-red-600"
-                  >
-                    Hapus
-                  </button>
+                  <div className="flex gap-2 ml-auto md:ml-0">
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(appointment)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 hover:border-brand-200 hover:text-brand-600 transition shadow-sm"
+                    >
+                      <Pencil size={14} />
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(appointment)}
+                      className="inline-flex items-center justify-center rounded-lg border border-red-100 bg-white p-1.5 text-red-600 hover:bg-red-50 hover:border-red-200 transition shadow-sm"
+                      title="Hapus"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}
             {!appointmentsLoading && appointments.length === 0 && (
-              <p className="text-sm text-slate-500">Belum ada janji terjadwal.</p>
+              <div className="py-12 text-center">
+                <p className="text-sm text-slate-400 italic">Belum ada janji terjadwal.</p>
+              </div>
             )}
           </ul>
         </div>

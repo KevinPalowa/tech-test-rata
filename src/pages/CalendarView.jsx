@@ -23,6 +23,8 @@ const calendarModes = [
   { value: 'monthly', label: 'Monthly' },
 ]
 
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
+
 export const CalendarView = () => {
   const [anchorDate, setAnchorDate] = useState(new Date())
   const [mode, setMode] = useState('weekly')
@@ -96,19 +98,21 @@ export const CalendarView = () => {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-sm uppercase text-slate-400">Calendar View</p>
-          <h1 className="text-2xl font-semibold text-slate-900">{label}</h1>
-          <p className="text-sm text-slate-500">
-            Ganti mode tampilan untuk fokus harian, mingguan, atau rangkuman bulanan.
-          </p>
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm border border-slate-100 text-brand-600">
+            <Calendar size={24} />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Calendar Agenda</p>
+            <h1 className="text-2xl font-bold text-slate-900 leading-tight truncate">{label}</h1>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <select
             value={mode}
             onChange={(event) => setMode(event.target.value)}
-            className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
+            className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm focus:border-brand-500 focus:outline-none transition appearance-none cursor-pointer"
           >
             {calendarModes.map((option) => (
               <option key={option.value} value={option.value}>
@@ -116,20 +120,20 @@ export const CalendarView = () => {
               </option>
             ))}
           </select>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => navigateRange(-1)}
-              className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-full border border-slate-200 bg-white p-2.5 text-slate-700 hover:bg-slate-50 transition shadow-sm"
             >
-              ← Sebelumnya
+              <ChevronLeft size={20} />
             </button>
             <button
               type="button"
               onClick={() => navigateRange(1)}
-              className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-full border border-slate-200 bg-white p-2.5 text-slate-700 hover:bg-slate-50 transition shadow-sm"
             >
-              Berikutnya →
+              <ChevronRight size={20} />
             </button>
           </div>
         </div>
@@ -137,7 +141,7 @@ export const CalendarView = () => {
 
       {mode === 'daily' && (
         <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Agenda hari ini</h2>
+          <h2 className="text-lg font-bold text-slate-900 border-b border-slate-50 pb-4">Agenda Hari Ini</h2>
           <ul className="mt-4 space-y-3">
             {dailyAppointments.map((appointment) => (
               <li key={appointment.id} className="rounded-xl border border-slate-100 p-4">
@@ -156,31 +160,41 @@ export const CalendarView = () => {
       )}
 
       {mode === 'weekly' && (
-        <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-sm">
-          <div className="grid min-w-[640px] grid-cols-7 divide-x divide-slate-100">
+        <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-sm no-scrollbar">
+          <div className="grid min-w-[840px] grid-cols-7 divide-x divide-slate-100">
             {weeklyDays.map((day) => {
               const items = getAppointmentsForDay(day)
               return (
-                <div key={day.toISOString()} className="p-4">
-                  <p className="text-xs uppercase text-slate-400">{format(day, 'EEE')}</p>
-                  <p className="text-lg font-semibold text-slate-900">{format(day, 'dd')}</p>
-                  <div className="mt-3 space-y-3">
+                <div key={day.toISOString()} className="p-4 min-h-[400px]">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{format(day, 'EEE')}</p>
+                  <p className="text-lg font-bold text-slate-900 mt-1">{format(day, 'dd')}</p>
+                  <div className="mt-4 space-y-3">
                     {items.map((appointment) => (
                       <article
                         key={appointment.id}
-                        className="rounded-xl border border-brand-100 bg-brand-50 p-3"
+                        className="rounded-xl border border-brand-100 bg-brand-50/50 p-2.5 shadow-sm transition hover:shadow-md"
                       >
-                        <p className="text-sm font-semibold text-brand-900">
+                        <p className="text-xs font-bold text-brand-900 break-words leading-tight">
                           {appointment.patient.name}
                         </p>
-                        <p className="text-xs text-brand-700">{appointment.reason}</p>
-                        <p className="text-xs text-slate-500">
-                          {format(parseISO(appointment.date), 'HH:mm')} • {appointment.status}
+                        <p className="text-[10px] text-brand-700 mt-1 leading-normal italic opacity-80 break-words">
+                          {appointment.reason}
                         </p>
+                        <div className="mt-2 pt-2 border-t border-brand-100/50 flex flex-wrap items-center gap-1.5">
+                          <span className="text-[9px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-100">
+                            {format(parseISO(appointment.date), 'HH:mm')}
+                          </span>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded capitalize ${appointment.status === 'scheduled' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                            }`}>
+                            {appointment.status}
+                          </span>
+                        </div>
                       </article>
                     ))}
                     {items.length === 0 && (
-                      <p className="text-xs text-slate-400">Tidak ada janji</p>
+                      <div className="rounded-xl border border-dashed border-slate-100 p-4 text-center">
+                        <p className="text-[10px] text-slate-400">No events</p>
+                      </div>
                     )}
                   </div>
                 </div>

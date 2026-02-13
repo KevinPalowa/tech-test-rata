@@ -19,6 +19,8 @@ const generateId = () => {
   return `wf-${Math.random().toString(36).slice(2, 8)}`
 }
 
+import { Save } from 'lucide-react'
+
 export const WorkflowBuilder = () => {
   const { workflowSteps, setWorkflowSteps } = useUIStore()
   const [newStep, setNewStep] = useState('')
@@ -107,31 +109,31 @@ export const WorkflowBuilder = () => {
 
   return (
     <section className="space-y-6 pb-12">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <header className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-brand-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-brand-700">
+            <span className="rounded-full bg-brand-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-700 border border-brand-100">
               Konfigurasi
             </span>
             {hasChanges && (
-              <span className="rounded-full bg-amber-50 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-700">
+              <span className="rounded-full bg-amber-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-700 border border-amber-100 animate-pulse">
                 Ada Perubahan
               </span>
             )}
           </div>
-          <h1 className="text-2xl font-semibold text-slate-900">Alur Operasional</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Alur Operasional</h1>
           <p className="text-sm text-slate-500">
             Atur tahapan perjalanan pasien mulai dari pendaftaran hingga selesai.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <AnimatePresence>
             {status && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className={`rounded-full px-4 py-2 text-sm font-medium shadow-sm border ${status.type === 'success'
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className={`rounded-full px-5 py-2.5 text-xs font-bold shadow-sm border text-center ${status.type === 'success'
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                   : 'bg-red-50 text-red-700 border-red-100'
                   }`}
@@ -144,7 +146,7 @@ export const WorkflowBuilder = () => {
             type="button"
             onClick={handleSave}
             disabled={saving || !hasChanges}
-            className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-500 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-600 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-brand-100 transition hover:bg-brand-500 disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -152,14 +154,17 @@ export const WorkflowBuilder = () => {
                 Processing...
               </>
             ) : (
-              'Simpan Perubahan'
+              <>
+                <Save size={18} />
+                Simpan Perubahan
+              </>
             )}
           </button>
         </div>
       </header>
 
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-100">
-        <div className="border-b border-slate-50 bg-slate-50/30 p-4">
+        <div className="border-b border-slate-50 bg-slate-50/30 p-4 sm:p-6">
           <form onSubmit={addStep} className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <input
@@ -167,15 +172,15 @@ export const WorkflowBuilder = () => {
                 placeholder="Masukkan langkah baru (ex: Pemeriksaan TTV)"
                 value={newStep}
                 onChange={(e) => setNewStep(e.target.value)}
-                className="w-full rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm transition focus:border-brand-500 focus:outline-none"
+                className="w-full rounded-full border border-slate-200 bg-white px-5 py-3 text-sm transition focus:border-brand-500 focus:outline-none shadow-sm"
               />
             </div>
             <button
               type="submit"
               disabled={!newStep.trim()}
-              className="rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-30"
+              className="rounded-full bg-slate-900 px-8 py-3 text-sm font-bold text-white transition hover:bg-slate-800 disabled:opacity-30 shadow-md"
             >
-              Tambah Langkah
+              Tambah
             </button>
           </form>
         </div>

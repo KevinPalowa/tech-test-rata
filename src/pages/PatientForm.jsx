@@ -109,30 +109,31 @@ export const PatientForm = () => {
   }
 
   return (
-    <section>
-      <div className="mb-6">
-        <p className="text-sm uppercase text-slate-400">
-          {isEditing ? 'Edit Pasien' : 'Tambah Pasien'}
+    <section className="max-w-4xl mx-auto">
+      <div className="mb-8">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          {isEditing ? 'Manajemen Pasien' : 'Registrasi Baru'}
         </p>
-        <h1 className="text-2xl font-semibold text-slate-900">
-          {isEditing ? formState.name : 'Data Pasien Baru'}
+        <h1 className="text-3xl font-bold text-slate-900 mt-1">
+          {isEditing ? `Edit: ${formState.name}` : 'Tambah Pasien'}
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-500 mt-2">
           Lengkapi data dasar pasien. Field bertanda <span className="text-red-500 font-bold">*</span> wajib diisi.
         </p>
       </div>
 
       {isEditing && loading && (
-        <div className="mb-4 rounded-xl border border-slate-100 bg-white p-4 text-sm text-slate-500">
+        <div className="mb-6 rounded-xl border border-slate-100 bg-white p-4 text-sm text-slate-500 flex items-center gap-3">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
           Memuat data pasien...
         </div>
       )}
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"
+        className="space-y-8 rounded-2xl border border-slate-100 bg-white p-6 sm:p-8 shadow-sm"
       >
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
           <Field
             label="Nama Lengkap"
             name="name"
@@ -155,7 +156,7 @@ export const PatientForm = () => {
               name="gender"
               value={formState.gender}
               onChange={handleChange}
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2.5 text-sm font-semibold text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 transition"
             >
               <option value="Female">Perempuan</option>
               <option value="Male">Laki-laki</option>
@@ -168,53 +169,65 @@ export const PatientForm = () => {
             value={formState.phone}
             onChange={handleChange}
             error={errors.phone}
+            placeholder="0812..."
           />
-          <Field
-            label="Alamat"
-            name="address"
-            required
-            value={formState.address}
-            onChange={handleChange}
-            error={errors.address}
-          />
-          <Field
-            label="Catatan"
-            name="notes"
-            value={formState.notes}
-            onChange={handleChange}
-            type="textarea"
-          />
+          <div className="md:col-span-2">
+            <Field
+              label="Alamat Lengkap"
+              name="address"
+              required
+              value={formState.address}
+              onChange={handleChange}
+              error={errors.address}
+              type="textarea"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Field
+              label="Catatan Khusus"
+              name="notes"
+              value={formState.notes}
+              onChange={handleChange}
+              type="textarea"
+              placeholder="Tambahkan catatan jika ada..."
+            />
+          </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 border-t border-slate-50 pt-8">
           <TagInput
-            label="Alergi"
+            label="Daftar Alergi"
             tags={formState.allergies}
             onChange={(newTags) => handleTagsChange('allergies', newTags)}
-            placeholder="Type and press comma..."
+            placeholder="Ketik lalu tekan enter/koma..."
             color="red"
           />
           <TagInput
-            label="Tags"
+            label="Label / Tags"
             tags={formState.tags}
             onChange={(newTags) => handleTagsChange('tags', newTags)}
-            placeholder="Type and press comma..."
+            placeholder="Ketik lalu tekan enter/koma..."
             color="brand"
           />
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-50">
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center rounded-full bg-brand-600 px-6 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-50"
+            className="inline-flex items-center justify-center rounded-full bg-brand-600 px-8 py-3 text-sm font-bold text-white shadow-lg shadow-brand-100 transition hover:bg-brand-500 disabled:opacity-50"
           >
-            {saving ? 'Menyimpan...' : actionLabel}
+            {saving ? (
+              <>
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Menyimpan...
+              </>
+            ) : actionLabel}
           </button>
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="inline-flex items-center rounded-full border border-slate-200 px-6 py-2 text-sm font-semibold text-slate-600"
+            className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-8 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition"
           >
             Batal
           </button>
