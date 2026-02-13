@@ -197,19 +197,30 @@ export const CalendarView = () => {
               <div key={index} className="grid grid-cols-7 divide-x divide-slate-100">
                 {week.map((day) => {
                   const items = getAppointmentsForDay(day)
+                  const inCurrentMonth = isSameMonth(day, start)
+                  const hasAppointments = items.length > 0
+
                   return (
-                    <div key={day.toISOString()} className="p-3">
-                      <p
-                        className={`text-xs font-semibold ${
-                          isSameMonth(day, start) ? 'text-slate-500' : 'text-slate-300'
-                        }`}
-                      >
-                        {format(day, 'dd')}
-                      </p>
+                    <div
+                      key={day.toISOString()}
+                      className={`p-3 transition ${
+                        hasAppointments ? 'bg-brand-50/80 ring-1 ring-brand-200' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs font-semibold">
+                        <span className={inCurrentMonth ? 'text-slate-600' : 'text-slate-300'}>
+                          {format(day, 'dd')}
+                        </span>
+                        {hasAppointments && (
+                          <span className="rounded-full bg-brand-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                            {items.length}
+                          </span>
+                        )}
+                      </div>
                       <div className="mt-2 space-y-1">
                         {items.slice(0, 2).map((appointment) => (
                           <p key={appointment.id} className="text-xs text-slate-600">
-                            {format(parseISO(appointment.date), 'dd/MM')} •{' '}
+                            {format(parseISO(appointment.date), 'HH:mm')} •{' '}
                             {appointment.patient.name.split(' ')[0]}
                           </p>
                         ))}
@@ -217,6 +228,9 @@ export const CalendarView = () => {
                           <p className="text-[11px] text-brand-600">
                             +{items.length - 2} janji lainnya
                           </p>
+                        )}
+                        {!hasAppointments && (
+                          <p className="text-[11px] text-slate-300">Tidak ada janji</p>
                         )}
                       </div>
                     </div>
