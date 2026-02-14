@@ -1,6 +1,6 @@
 # Mini Clinic Management System
 
-A web-based clinic management system built with React, Apollo Client, and a standalone Node.js GraphQL server backed by SQLite.
+A web-based clinic management system built with React, TypeScript, Apollo Client, and a standalone Node.js GraphQL server backed by SQLite.
 
 ## Features
 
@@ -13,7 +13,7 @@ A web-based clinic management system built with React, Apollo Client, and a stan
 
 ## Architecture
 
-- **Frontend**: Vite + React + Apollo Client + Tailwind CSS
+- **Frontend**: Vite + React + TypeScript + Apollo Client + Tailwind CSS
 - **Backend**: Node.js + Apollo Server + Knex.js
 - **Database**: SQLite3
 
@@ -62,16 +62,47 @@ npm run dev
 
 ---
 
+## Building for Production
+
+### Frontend Application
+
+To build the TypeScript frontend for production optimization:
+
+```bash
+npm run build
+```
+
+The build artifacts will be generated in the `dist` directory. These static files can be served by any web server (Nginx, Apache, Vercel, Netlify, etc.).
+
+To preview the production build locally:
+
+```bash
+npm run preview
+```
+
+### Backend Server
+
+The backend is a Node.js application running JavaScript, so it **does not require a build step** (no transpilation or compilation needed).
+
+To run the backend in a production environment:
+
+```bash
+cd server
+npm start
+```
+
+---
+
 ## Database Schema
 
 The SQLite database (`server/database/dev.sqlite3`) contains the following tables:
 
-- `patients`: Core patient data (name, DOB, gender, phone, address, allergies, notes).
+- `patients`: Core patient data (name, DOB, gender, phone, address, allergies, tags, notes).
 - `appointments`: Scheduled visits linked to patients.
 - `workflow_steps`: Configuration for the clinic's workflow phases.
 
 ## Development
 
 - **Server Logic**: Resolvers and schema are located in `server/resolvers.js` and `server/schema.js`.
-- **Frontend Logic**: GraphQL queries and mutations are in `src/graphql/documents.js`.
-- **Apollo Setup**: Configured in `src/graphql/client.js`.
+- **Frontend Logic**: GraphQL queries and mutations are in `src/graphql/documents.ts`.
+- **Apollo Setup**: Configured in `src/graphql/apolloClient.ts`.
