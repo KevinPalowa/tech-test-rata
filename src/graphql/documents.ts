@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client'
+import { gql, type DocumentNode } from '@apollo/client'
 
-export const PATIENTS_QUERY = gql`
+export const PATIENTS_QUERY: DocumentNode = gql`
   query Patients($search: String, $limit: Int, $offset: Int) {
     patients(search: $search, limit: $limit, offset: $offset) {
       patients {
@@ -17,7 +17,7 @@ export const PATIENTS_QUERY = gql`
   }
 `
 
-export const PATIENT_DETAIL_QUERY = gql`
+export const PATIENT_DETAIL_QUERY: DocumentNode = gql`
   query Patient($id: ID!) {
     patient(id: $id) {
       id
@@ -38,7 +38,7 @@ export const PATIENT_DETAIL_QUERY = gql`
   }
 `
 
-export const UPSERT_PATIENT_MUTATION = gql`
+export const UPSERT_PATIENT_MUTATION: DocumentNode = gql`
   mutation UpsertPatient($id: ID, $input: PatientInput!) {
     upsertPatient(id: $id, input: $input) {
       id
@@ -54,7 +54,7 @@ export const UPSERT_PATIENT_MUTATION = gql`
   }
 `
 
-export const APPOINTMENTS_QUERY = gql`
+export const APPOINTMENTS_QUERY: DocumentNode = gql`
   query Appointments($start: String, $end: String) {
     appointments(start: $start, end: $end) {
       id
@@ -69,7 +69,7 @@ export const APPOINTMENTS_QUERY = gql`
   }
 `
 
-export const WORKFLOW_QUERY = gql`
+export const WORKFLOW_QUERY: DocumentNode = gql`
   query Workflow {
     workflow {
       id
@@ -78,7 +78,7 @@ export const WORKFLOW_QUERY = gql`
   }
 `
 
-export const SAVE_WORKFLOW_MUTATION = gql`
+export const SAVE_WORKFLOW_MUTATION: DocumentNode = gql`
   mutation SaveWorkflow($steps: [WorkflowStepInput!]!) {
     saveWorkflow(steps: $steps) {
       id
@@ -87,7 +87,7 @@ export const SAVE_WORKFLOW_MUTATION = gql`
   }
 `
 
-export const CREATE_APPOINTMENT_MUTATION = gql`
+export const CREATE_APPOINTMENT_MUTATION: DocumentNode = gql`
   mutation CreateAppointment($input: AppointmentInput!) {
     createAppointment(input: $input) {
       id
@@ -102,7 +102,7 @@ export const CREATE_APPOINTMENT_MUTATION = gql`
   }
 `
 
-export const UPDATE_APPOINTMENT_MUTATION = gql`
+export const UPDATE_APPOINTMENT_MUTATION: DocumentNode = gql`
   mutation UpdateAppointment($id: ID!, $input: AppointmentInput!) {
     updateAppointment(id: $id, input: $input) {
       id
@@ -117,7 +117,7 @@ export const UPDATE_APPOINTMENT_MUTATION = gql`
   }
 `
 
-export const DELETE_APPOINTMENT_MUTATION = gql`
+export const DELETE_APPOINTMENT_MUTATION: DocumentNode = gql`
   mutation DeleteAppointment($id: ID!) {
     deleteAppointment(id: $id)
   }

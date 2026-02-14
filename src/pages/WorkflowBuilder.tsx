@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client/react'
 import { useEffect, useState, useRef } from 'react'
-import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, DragOverlay } from '@dnd-kit/core'
+import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, DragOverlay, DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import {
   SortableContext,
   arrayMove,
@@ -10,6 +10,19 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { SAVE_WORKFLOW_MUTATION, WORKFLOW_QUERY } from '../graphql/documents'
 import { useUIStore } from '../store/uiStore'
+
+interface WorkflowStep {
+  id: string
+  name: string
+}
+
+interface WorkflowData {
+  workflow: WorkflowStep[]
+}
+
+interface SaveWorkflowVars {
+  steps: { id: string, name: string }[]
+}
 
 const generateId = () => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -23,9 +36,9 @@ import { Save } from 'lucide-react'
 export const WorkflowBuilder = () => {
   const { workflowSteps, setWorkflowSteps } = useUIStore()
   const [newStep, setNewStep] = useState('')
-  const [status, setStatus] = useState(null)
+  const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [hasChanges, setHasChanges] = useState(false)
-  const [activeId, setActiveId] = useState(null)
+  const [activeId, setActiveId] = useState<string | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -33,11 +46,11 @@ export const WorkflowBuilder = () => {
     }),
   )
 
-  const { loading, refetch, data } = useQuery(WORKFLOW_QUERY, {
+  const { loading, refetch, data } = useQuery<WorkflowData>(WORKFLOW_QUERY, {
     fetchPolicy: 'network-only',
   })
 
-  const [prevData, setPrevData] = useState(null)
+  const [prevData, setPrevData] = useState<WorkflowData | undefined>(undefined)
   if (data !== prevData) {
     setPrevData(data)
     if (data?.workflow) {
@@ -46,7 +59,7 @@ export const WorkflowBuilder = () => {
     }
   }
 
-  const [saveWorkflow, { loading: saving }] = useMutation(SAVE_WORKFLOW_MUTATION, {
+  const [saveWorkflow, { loading: saving }] = useMutation<any, SaveWorkflowVars>(SAVE_WORKFLOW_MUTATION, {
     onCompleted: (result) => {
       setWorkflowSteps(result.saveWorkflow)
       setStatus({ type: 'success', message: 'Workflow berhasil disimpan' })
@@ -65,7 +78,7 @@ export const WorkflowBuilder = () => {
     }
   }, [status])
 
-  const addStep = (e) => {
+  const addStep = (e: React.FormEvent) => {
     e?.preventDefault()
     if (!newStep.trim()) return
     setWorkflowSteps([...workflowSteps, { id: generateId(), name: newStep.trim() }])
@@ -73,12 +86,12 @@ export const WorkflowBuilder = () => {
     setHasChanges(true)
   }
 
-  const removeStep = (id) => {
+  const removeStep = (id: string) => {
     setWorkflowSteps(workflowSteps.filter((step) => step.id !== id))
     setHasChanges(true)
   }
 
-  const updateStepName = (id, newName) => {
+  const updateStepName = (id: string, newName: string) => {
     setWorkflowSteps(
       workflowSteps.map((step) => (step.id === id ? { ...step, name: newName } : step))
     )
@@ -97,11 +110,11 @@ export const WorkflowBuilder = () => {
     })
   }
 
-  const handleDragStart = (event) => {
-    setActiveId(event.active.id)
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string)
   }
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     setActiveId(null)
     if (!over || active.id === over.id) return
@@ -112,7 +125,7 @@ export const WorkflowBuilder = () => {
     setHasChanges(true)
   }
 
-  const moveStep = (index, direction) => {
+  const moveStep = (index: number, direction: number) => {
     const newIndex = index + direction
     if (newIndex < 0 || newIndex >= workflowSteps.length) return
     setWorkflowSteps(arrayMove(workflowSteps, index, newIndex))
@@ -267,10 +280,20 @@ export const WorkflowBuilder = () => {
   )
 }
 
-const WorkflowStepItem = ({ step, index, onRemove, onUpdateName, onMove, isFirst, isLast }) => {
+interface WorkflowStepItemProps {
+  step: WorkflowStep
+  index: number
+  onRemove: () => void
+  onUpdateName: (name: string) => void
+  onMove: (direction: number) => void
+  isFirst: boolean
+  isLast: boolean
+}
+
+const WorkflowStepItem = ({ step, index, onRemove, onUpdateName, onMove, isFirst, isLast }: WorkflowStepItemProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(step.name)
-  const inputRef = useRef(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: step.id,
@@ -292,7 +315,7 @@ const WorkflowStepItem = ({ step, index, onRemove, onUpdateName, onMove, isFirst
     }
   }
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleBlur()
     if (e.key === 'Escape') {
       setIsEditing(false)

@@ -8,7 +8,35 @@ import { Plus, Search, ChevronRight, ChevronLeft } from 'lucide-react'
 
 const PAGE_SIZE = 6
 
-const EmptyState = ({ title, description }) => (
+interface Patient {
+  id: string
+  name: string
+  dateOfBirth: string
+  gender: string
+  phone: string
+  tags: string[]
+  notes: string
+}
+
+interface PatientsData {
+  patients: {
+    patients: Patient[]
+    totalCount: number
+  }
+}
+
+interface PatientsVars {
+  search: string | null
+  limit: number
+  offset: number
+}
+
+interface EmptyStateProps {
+  title: string
+  description: string
+}
+
+const EmptyState = ({ title, description }: EmptyStateProps) => (
   <div className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center">
     <p className="text-lg font-semibold text-slate-900">{title}</p>
     <p className="mt-2 text-sm text-slate-500">{description}</p>
@@ -20,7 +48,7 @@ export const PatientList = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const debouncedSearch = useDebounce(patientSearch)
 
-  const { data, loading, error } = useQuery(PATIENTS_QUERY, {
+  const { data, loading, error } = useQuery<PatientsData, PatientsVars>(PATIENTS_QUERY, {
     variables: {
       search: debouncedSearch || null,
       limit: PAGE_SIZE,

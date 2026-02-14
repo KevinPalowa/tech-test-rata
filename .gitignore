@@ -1,5 +1,4 @@
 # Logs
-
 logs
 *.log
 npm-debug.log*
@@ -11,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist-node
 *.local
 
 # Editor directories and files
@@ -23,3 +23,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Testing
+coverage

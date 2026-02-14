@@ -16,6 +16,7 @@ import {
 } from 'date-fns'
 import { useMemo, useState } from 'react'
 import { APPOINTMENTS_QUERY } from '../graphql/documents'
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
 
 const calendarModes = [
   { value: 'daily', label: 'Daily' },
@@ -23,11 +24,31 @@ const calendarModes = [
   { value: 'monthly', label: 'Monthly' },
 ]
 
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
+interface Patient {
+  id: string
+  name: string
+  phone: string
+}
+
+interface Appointment {
+  id: string
+  date: string
+  reason: string
+  patient: Patient
+}
+
+interface AppointmentData {
+  appointments: Appointment[]
+}
+
+interface AppointmentVars {
+  start: string
+  end: string
+}
 
 export const CalendarView = () => {
   const [anchorDate, setAnchorDate] = useState(new Date())
-  const [mode, setMode] = useState('weekly')
+  const [mode, setMode] = useState<string>('weekly')
 
   const { start, end, label } = useMemo(() => {
     const base = new Date(anchorDate)
@@ -50,7 +71,7 @@ export const CalendarView = () => {
     }
   }, [anchorDate, mode])
 
-  const navigateRange = (direction) => {
+  const navigateRange = (direction: number) => {
     setAnchorDate((prev) => {
       if (mode === 'daily') {
         return addDays(prev, direction)
@@ -62,7 +83,7 @@ export const CalendarView = () => {
     })
   }
 
-  const { data, loading } = useQuery(APPOINTMENTS_QUERY, {
+  const { data, loading } = useQuery<AppointmentData, AppointmentVars>(APPOINTMENTS_QUERY, {
     variables: { start: start.toISOString(), end: end.toISOString() },
     fetchPolicy: 'cache-and-network',
   })
@@ -84,7 +105,7 @@ export const CalendarView = () => {
 
   const monthlyWeeks = useMemo(() => {
     if (mode !== 'monthly') return []
-    const weeks = []
+    const weeks: Date[][] = []
     let cursor = startOfWeek(start, { weekStartsOn: 1 })
     const finalDay = endOfWeek(end, { weekStartsOn: 1 })
     while (cursor <= finalDay) {
@@ -94,7 +115,7 @@ export const CalendarView = () => {
     return weeks
   }, [mode, start, end])
 
-  const getAppointmentsForDay = (day) =>
+  const getAppointmentsForDay = (day: Date) =>
     appointments.filter((appointment) => isSameDay(parseISO(appointment.date), day))
 
   return (

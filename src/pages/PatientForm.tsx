@@ -4,7 +4,34 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { PATIENTS_QUERY, PATIENT_DETAIL_QUERY, UPSERT_PATIENT_MUTATION } from '../graphql/documents'
 import { useUIStore } from '../store/uiStore'
 
-const emptyForm = {
+interface PatientInput {
+  name: string
+  dateOfBirth: string
+  gender: string
+  phone: string
+  address: string
+  allergies: string[]
+  notes: string
+}
+
+interface FormState extends PatientInput {}
+
+interface PatientDetailData {
+  patient: FormState & { id: string }
+}
+
+interface UpsertPatientData {
+  upsertPatient: {
+    id: string
+  }
+}
+
+interface UpsertPatientVars {
+  id?: string
+  input: PatientInput
+}
+
+const emptyForm: FormState = {
   name: '',
   dateOfBirth: '',
   gender: 'Female',
@@ -15,19 +42,19 @@ const emptyForm = {
 }
 
 export const PatientForm = () => {
-  const { id } = useParams()
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const role = useUIStore((state) => state.role)
   const isEditing = Boolean(id)
-  const [formState, setFormState] = useState(emptyForm)
-  const [errors, setErrors] = useState({})
+  const [formState, setFormState] = useState<FormState>(emptyForm)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const { loading, data } = useQuery(PATIENT_DETAIL_QUERY, {
+  const { loading, data } = useQuery<PatientDetailData>(PATIENT_DETAIL_QUERY, {
     variables: { id },
     skip: !isEditing,
   })
 
-  const [prevPatient, setPrevPatient] = useState(null)
+  const [prevPatient, setPrevPatient] = useState<PatientDetailData['patient'] | null>(null)
   if (isEditing && data?.patient && data.patient !== prevPatient) {
     setPrevPatient(data.patient)
     const patient = data.patient
@@ -42,10 +69,10 @@ export const PatientForm = () => {
     })
   }
 
-  const [savePatient, { loading: saving }] = useMutation(UPSERT_PATIENT_MUTATION, {
+  const [savePatient, { loading: saving }] = useMutation<UpsertPatientData, UpsertPatientVars>(UPSERT_PATIENT_MUTATION, {
     refetchQueries: [
       { query: PATIENTS_QUERY },
-      { query: PATIENT_DETAIL_QUERY, variables: { id } }
+      ...(id ? [{ query: PATIENT_DETAIL_QUERY, variables: { id } }] : []),
     ],
   })
 
@@ -59,17 +86,19 @@ export const PatientForm = () => {
     )
   }
 
-  const handleChange = (event) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = event.target
     setFormState((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleTagsChange = (name, newTags) => {
+  const handleTagsChange = (name: string, newTags: string[]) => {
     setFormState((prev) => ({ ...prev, [name]: newTags }))
   }
 
   const validate = () => {
-    const nextErrors = {}
+    const nextErrors: Record<string, string> = {}
     if (!formState.name.trim()) nextErrors.name = 'Nama wajib diisi'
     if (!formState.dateOfBirth) nextErrors.dateOfBirth = 'Tanggal lahir wajib diisi'
 
@@ -85,11 +114,11 @@ export const PatientForm = () => {
     return Object.keys(nextErrors).length === 0
   }
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!validate()) return
 
-    const input = {
+    const input: PatientInput = {
       name: formState.name.trim(),
       dateOfBirth: formState.dateOfBirth,
       gender: formState.gender,
@@ -230,10 +259,18 @@ export const PatientForm = () => {
   )
 }
 
-const TagInput = ({ label, tags, onChange, placeholder, color = 'brand' }) => {
+interface TagInputProps {
+  label: string
+  tags: string[]
+  onChange: (tags: string[]) => void
+  placeholder: string
+  color?: 'brand' | 'red'
+}
+
+const TagInput = ({ label, tags, onChange, placeholder, color = 'brand' }: TagInputProps) => {
   const [inputValue, setInputValue] = useState('')
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === ',') {
       event.preventDefault()
       addTag()
@@ -253,7 +290,7 @@ const TagInput = ({ label, tags, onChange, placeholder, color = 'brand' }) => {
     setInputValue('')
   }
 
-  const removeTag = (indexToRemove) => {
+  const removeTag = (indexToRemove: number) => {
     onChange(tags.filter((_, index) => index !== indexToRemove))
   }
 
@@ -298,7 +335,19 @@ const TagInput = ({ label, tags, onChange, placeholder, color = 'brand' }) => {
   )
 }
 
-const Field = ({ label, name, value, onChange, type = 'text', error, children, required, placeholder }) => (
+interface FieldProps {
+  label: string
+  name: string
+  value?: string | number
+  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  type?: string
+  error?: string
+  children?: React.ReactNode
+  required?: boolean
+  placeholder?: string
+}
+
+const Field = ({ label, name, value, onChange, type = 'text', error, children, required, placeholder }: FieldProps) => (
   <label className="space-y-1 text-sm text-slate-700">
     <span className="font-medium">
       {label}

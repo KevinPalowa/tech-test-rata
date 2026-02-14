@@ -9,15 +9,23 @@ import {
   DELETE_APPOINTMENT_MUTATION,
 } from '../graphql/documents'
 import { Modal } from '../components/Modal'
+import { CheckCircle2, Pencil, Trash2 } from 'lucide-react'
 
-const defaultForm = {
+interface AppointmentForm {
+  id: string | null
+  patientId: string
+  date: string
+  reason: string
+}
+
+const defaultForm: AppointmentForm = {
   id: null,
   patientId: '',
   date: '',
   reason: '',
 }
 
-const formatHumanDate = (value) => {
+const formatHumanDate = (value: string) => {
   try {
     return format(parseISO(value), 'dd MMM yyyy • HH:mm')
   } catch {
@@ -25,7 +33,7 @@ const formatHumanDate = (value) => {
   }
 }
 
-const toInputDatetime = (value) => {
+const toInputDatetime = (value: string) => {
   if (!value) return ''
   const date = new Date(value)
   const offset = date.getTimezoneOffset()
@@ -33,35 +41,78 @@ const toInputDatetime = (value) => {
   return local.toISOString().slice(0, 16)
 }
 
-const toISOStringValue = (value) => {
+const toISOStringValue = (value: string) => {
   if (!value) return ''
   return new Date(value).toISOString()
 }
 
-import { CheckCircle2, Pencil, Trash2 } from 'lucide-react'
+interface Patient {
+  id: string
+  name: string
+  phone: string
+}
+
+interface Appointment {
+  id: string
+  date: string
+  reason: string
+  patient: Patient
+}
+
+interface AppointmentData {
+  appointments: Appointment[]
+}
+
+interface PatientData {
+  patients: {
+    patients: Patient[]
+  }
+}
+
+interface CreateAppointmentVars {
+  input: {
+    patientId: string
+    date: string
+    reason: string
+  }
+}
+
+interface UpdateAppointmentVars {
+  id?: string
+  input: {
+    patientId: string
+    date: string
+    reason: string
+  }
+}
+
+interface DeleteAppointmentVars {
+  id: string
+}
+
 
 export const AppointmentManager = () => {
-  const [form, setForm] = useState(defaultForm)
-  const [errors, setErrors] = useState({})
-  const [message, setMessage] = useState(null)
-  const [deletingAppointment, setDeletingAppointment] = useState(null)
+  const [form, setForm] = useState<AppointmentForm>(defaultForm)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [message, setMessage] = useState<string | null>(null)
+  const [deletingAppointment, setDeletingAppointment] = useState<Appointment | null>(null)
 
   const {
     data: appointmentData,
     loading: appointmentsLoading,
-  } = useQuery(APPOINTMENTS_QUERY)
+  } = useQuery<AppointmentData>(APPOINTMENTS_QUERY)
 
-  const { data: patientData, loading: patientsLoading } = useQuery(PATIENTS_QUERY, {
+  const { data: patientData, loading: patientsLoading } = useQuery<PatientData>(PATIENTS_QUERY, {
     variables: { search: null, limit: 100 },
   })
 
-  const [createAppointment, { loading: creating }] = useMutation(CREATE_APPOINTMENT_MUTATION, {
+  const [createAppointment, { loading: creating }] = useMutation<any, CreateAppointmentVars>(CREATE_APPOINTMENT_MUTATION, {
     refetchQueries: ['Appointments'],
   })
-  const [updateAppointment, { loading: updating }] = useMutation(UPDATE_APPOINTMENT_MUTATION, {
+  const [updateAppointment, { loading: updating }] = useMutation<any, UpdateAppointmentVars>(UPDATE_APPOINTMENT_MUTATION, {
     refetchQueries: ['Appointments'],
   })
-  const [deleteAppointment, { loading: deleting }] = useMutation(DELETE_APPOINTMENT_MUTATION, {
+  const [deleteAppointment, { loading: deleting }] = useMutation<any, DeleteAppointmentVars>(DELETE_APPOINTMENT_MUTATION, {
     refetchQueries: ['Appointments'],
   })
 
@@ -77,7 +128,7 @@ export const AppointmentManager = () => {
   }
 
   const validate = () => {
-    const nextErrors = {}
+    const nextErrors: Record<string, string> = {}
     if (!form.patientId) nextErrors.patientId = 'Pilih pasien'
     if (!form.date) nextErrors.date = 'Pilih tanggal dan waktu'
     if (!form.reason.trim()) nextErrors.reason = 'Isi alasan janji'
@@ -85,7 +136,7 @@ export const AppointmentManager = () => {
     return Object.keys(nextErrors).length === 0
   }
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!validate()) return
 
@@ -97,7 +148,7 @@ export const AppointmentManager = () => {
       },
     }
 
-    if (isEditing) {
+    if (isEditing && form.id) {
       await updateAppointment({ variables: { id: form.id, ...variables } })
       setMessage('Janji berhasil diperbarui')
     } else {
@@ -108,7 +159,7 @@ export const AppointmentManager = () => {
     resetForm()
   }
 
-  const handleEdit = (appointment) => {
+  const handleEdit = (appointment: Appointment) => {
     setForm({
       id: appointment.id,
       patientId: appointment.patient.id,
@@ -118,7 +169,7 @@ export const AppointmentManager = () => {
     setErrors({})
   }
 
-  const handleDelete = (appointment) => {
+  const handleDelete = (appointment: Appointment) => {
     setDeletingAppointment(appointment)
   }
 

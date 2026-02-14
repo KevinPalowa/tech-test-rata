@@ -6,7 +6,7 @@ import { PATIENT_DETAIL_QUERY } from '../graphql/documents'
 import { useUIStore } from '../store/uiStore'
 import { Pencil, ChevronLeft } from 'lucide-react'
 
-const formatDate = (value, withTime = false) => {
+const formatDate = (value: string, withTime = false) => {
   try {
     const parsed = parseISO(value)
     return format(parsed, withTime ? 'dd MMM yyyy • HH:mm' : 'dd MMM yyyy')
@@ -15,12 +15,39 @@ const formatDate = (value, withTime = false) => {
   }
 }
 
+interface Appointment {
+  id: string
+  date: string
+  reason: string
+}
+
+interface PatientDetail {
+  id: string
+  name: string
+  dateOfBirth: string
+  gender: string
+  phone: string
+  address: string
+  allergies: string[]
+  tags: string[]
+  notes: string
+  appointments: Appointment[]
+}
+
+interface PatientDetailData {
+  patient: PatientDetail
+}
+
+interface PatientDetailVars {
+  id: string
+}
+
 export const PatientDetail = () => {
-  const { id } = useParams()
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const role = useUIStore((state) => state.role)
-  const { data, loading, error } = useQuery(PATIENT_DETAIL_QUERY, {
-    variables: { id },
+  const { data, loading, error } = useQuery<PatientDetailData, PatientDetailVars>(PATIENT_DETAIL_QUERY, {
+    variables: { id: id! },
   })
 
   const patient = data?.patient
@@ -30,14 +57,14 @@ export const PatientDetail = () => {
     const now = new Date()
     return appointments
       .filter((a) => new Date(a.date) >= now)
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }, [appointments])
 
   const pastAppointments = useMemo(() => {
     const now = new Date()
     return appointments
       .filter((a) => new Date(a.date) < now)
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }, [appointments])
 
   if (loading) {

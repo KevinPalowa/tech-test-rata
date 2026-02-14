@@ -1,16 +1,27 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, AlertCircle } from 'lucide-react'
 
+interface ModalProps {
+  isOpen: boolean
+  onClose: () => void
+  title: string
+  message: string
+  confirmLabel?: string
+  cancelLabel?: string
+  onConfirm?: () => void
+  variant?: 'danger' | 'brand'
+}
+
 export const Modal = ({
-    isOpen,
-    onClose,
-    title,
-    message,
-    confirmLabel = 'Konfirmasi',
-    cancelLabel = 'Batal',
-    onConfirm,
-    variant = 'danger'
-}) => {
+  isOpen,
+  onClose,
+  title,
+  message,
+  confirmLabel = 'Konfirmasi',
+  cancelLabel = 'Batal',
+  onConfirm,
+  variant = 'danger'
+}: ModalProps) => {
     if (typeof isOpen === 'undefined') return null;
 
     return (
